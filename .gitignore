@@ -7,6 +7,8 @@ secret.key
 # Staging & Temporary Directories
 temp_enc/
 temp_upload_enc/
+web_temp/
+web_reconstructed/
 mock_cloud_storage/
 demo_files/
 demo_workspace/

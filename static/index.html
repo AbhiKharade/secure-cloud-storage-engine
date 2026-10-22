@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SecureCloud | SPPU Cloud Computing Laboratory</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <!-- Ambient background glow elements -->
+  <div class="glow-sphere sphere-1"></div>
+  <div class="glow-sphere sphere-2"></div>
+
+  <!-- Top Navigation Bar -->
+  <header class="top-nav">
+    <div class="nav-brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-title">SecureCloud <span class="badge-tag">AES-256</span></div>
+        <div class="brand-sub">SPPU Cloud Computing Laboratory • Group C (Option 2)</div>
+      </div>
+    </div>
+
+    <!-- Live Cloud Backend Indicator -->
+    <div class="cloud-status-badge" id="cloudStatusBadge">
+      <div class="status-dot pulse"></div>
+      <div class="status-info">
+        <span class="status-title" id="backendLabel">Connecting to Supabase...</span>
+        <span class="status-details" id="backendBucket">Bucket: sppu-cloud-secure-storage</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="dashboard-grid">
+    
+    <!-- LEFT PANEL: Upload & Segmentation Studio -->
+    <section class="panel upload-panel">
+      <div class="panel-header">
+        <div class="step-num">1</div>
+        <div>
+          <h2>File Segmentation & Encryption Studio</h2>
+          <p>Slices arbitrary files into blocks & encrypts each with AES-256 before upload</p>
+        </div>
+      </div>
+
+      <!-- Drag & Drop Zone -->
+      <div class="drop-zone" id="dropZone">
+        <input type="file" id="fileInput" class="file-input-hidden">
+        <div class="drop-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+          </svg>
+        </div>
+        <div class="drop-text">
+          <span class="highlight">Choose a file</span> or drag & drop here
+        </div>
+        <div class="drop-sub">PDF, High-Res Image, Text, or Binary datasets</div>
+        <div class="selected-file-badge" id="selectedFileBadge" style="display: none;">
+          <span id="selectedFileName">file.pdf</span>
+          <span id="selectedFileSize" class="file-size-tag">0 KB</span>
+        </div>
+      </div>
+
+      <!-- Chunk Size Selection -->
+      <div class="config-row">
+        <label class="input-label">Segmentation Block Size:</label>
+        <div class="segment-pills" id="chunkSizeSelector">
+          <button type="button" class="pill-btn" data-bytes="262144">256 KB</button>
+          <button type="button" class="pill-btn active" data-bytes="524288">512 KB (Default)</button>
+          <button type="button" class="pill-btn" data-bytes="1048576">1 MB</button>
+        </div>
+      </div>
+
+      <!-- Action Button -->
+      <button type="button" class="primary-btn" id="uploadBtn" disabled>
+        <span class="btn-icon">⚡</span> Encrypt & Upload to Supabase
+      </button>
+
+      <!-- Live Pipeline Progress Tracker -->
+      <div class="pipeline-progress" id="pipelineProgress" style="display: none;">
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" id="progressBarFill"></div>
+        </div>
+        <div class="progress-steps">
+          <span class="step-item" id="stepHash">① SHA-256 Hash</span>
+          <span class="step-item" id="stepSegment">② 512KB Slice</span>
+          <span class="step-item" id="stepEncrypt">③ AES-256 Encrypt</span>
+          <span class="step-item" id="stepCloud">④ Supabase S3 Upload</span>
+        </div>
+      </div>
+
+      <!-- Interactive Block Visualization Canvas -->
+      <div class="segmentation-preview" id="segmentationPreview" style="display: none;">
+        <div class="preview-header">
+          <span class="preview-title">Generated Cryptographic Shards</span>
+          <span class="preview-count" id="shardsCountBadge">0 Blocks</span>
+        </div>
+        <div class="shards-grid" id="shardsGrid"></div>
+      </div>
+    </section>
+
+    <!-- RIGHT PANEL: Reassembly, Decryption & Audit -->
+    <section class="panel download-panel">
+      <div class="panel-header">
+        <div class="step-num">2</div>
+        <div>
+          <h2>Cloud Reassembly & Cryptographic Audit</h2>
+          <p>Retrieves encrypted blocks from Supabase, decrypts & audits SHA-256 integrity</p>
+        </div>
+      </div>
+
+      <!-- Quick Session Selector -->
+      <div class="form-group">
+        <label class="input-label">Select Uploaded Vault File:</label>
+        <select id="vaultSelect" class="form-select">
+          <option value="">-- Choose recently uploaded file --</option>
+        </select>
+      </div>
+
+      <!-- Input Fields -->
+      <div class="form-row">
+        <div class="form-group flex-1">
+          <label class="input-label">Vault File ID:</label>
+          <input type="text" id="targetFileId" class="form-input" placeholder="e.g. vault_a1b2c3d4">
+        </div>
+        <div class="form-group flex-1">
+          <label class="input-label">Total Blocks:</label>
+          <input type="number" id="targetBlocks" class="form-input" placeholder="e.g. 3" min="1">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="input-label">Expected Original SHA-256 Hash:</label>
+        <input type="text" id="targetHash" class="form-input mono" placeholder="64-character SHA-256 hex digest">
+      </div>
+
+      <!-- Reassemble Action Button -->
+      <button type="button" class="accent-btn" id="reassembleBtn">
+        <span class="btn-icon">🔓</span> Decrypt, Stitch & Verify Integrity
+      </button>
+
+      <!-- Audit Results Card -->
+      <div class="audit-card" id="auditCard" style="display: none;">
+        <div class="audit-badge" id="auditBadge">
+          <div class="audit-icon" id="auditIcon">✓</div>
+          <div>
+            <div class="audit-status" id="auditStatusText">100% BIT-PERFECT MATCH</div>
+            <div class="audit-sub" id="auditSubText">Zero bit corruption or tampering detected</div>
+          </div>
+        </div>
+
+        <div class="hash-audit-table">
+          <div class="hash-row">
+            <span class="hash-label">Expected SHA-256:</span>
+            <code class="hash-value" id="auditExpectedHash">-</code>
+          </div>
+          <div class="hash-row">
+            <span class="hash-label">Reconstructed:</span>
+            <code class="hash-value" id="auditReconstructedHash">-</code>
+          </div>
+          <div class="hash-row">
+            <span class="hash-label">Reconstructed Size:</span>
+            <span class="hash-value" id="auditSize">-</span>
+          </div>
+        </div>
+
+        <!-- Download Restored File Button -->
+        <a id="downloadRestoredFileBtn" class="download-link-btn" href="#" download>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+          </svg>
+          Download Restored File to Computer
+        </a>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Bottom Panel: Ciphertext Inspector Modal -->
+  <div class="modal-overlay" id="cipherModal" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modalBlockTitle">Ciphertext Inspector: Block #0</h3>
+        <button type="button" class="modal-close-btn" id="modalCloseBtn">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">
+          This raw encrypted block is what resides in your <strong>Supabase Storage Bucket</strong>. Notice that it contains only scrambled ciphertext with an HMAC authentication tag—no plaintext readable data.
+        </p>
+        <div class="cipher-box">
+          <label>Encrypted Payload (Fernet AES-128-CBC + HMAC-SHA256):</label>
+          <textarea id="modalCipherPreview" readonly rows="5"></textarea>
+        </div>
+        <div class="cipher-meta" id="modalBlockMeta">
+          <span>Plaintext Size: 524,288 B</span>
+          <span>Encrypted Size: 699,148 B</span>
+          <span>Cloud Key: segments/block_0.enc</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    SPPU Department of Computer Engineering • Cloud Computing Laboratory Mini-Project (Group C, Option 2)
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

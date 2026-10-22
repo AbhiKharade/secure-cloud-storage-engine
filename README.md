@@ -60,11 +60,16 @@ flowchart TD
 
 ```
 h:/CC/
-├── .env                       # Active environment configuration
+├── .env                       # Active environment configuration (never committed)
 ├── .env.example               # Template for Supabase S3 credentials
 ├── requirements.txt           # Project dependencies
 ├── secret.key                 # Generated 256-bit symmetric encryption key
 ├── secure_storage.py          # Core engine (Crypto, S3 Client, Segmentation, Reassembly)
+├── server.py                  # FastAPI Backend Server for Web Dashboard
+├── static/                    # Modern Dark Glassmorphic Web Dashboard
+│   ├── index.html             # Single-Page UI
+│   ├── style.css              # Custom styling & dark-mode controls
+│   └── app.js                 # Drag-and-drop & block visualizer logic
 ├── main.py                    # CLI application (upload & download commands)
 ├── demo.py                    # Self-contained automated test & demonstration script
 ├── mock_cloud_storage/        # Local mock storage folder (auto-fallback if offline)
@@ -171,6 +176,15 @@ To demonstrate all features (Text, PNG Image, PDF, and Tamper Resistance Test) i
 ```bash
 python demo.py
 ```
+
+---
+
+### 4. Interactive Web Dashboard
+To launch the modern browser-based UI with live block visualizer, ciphertext inspector, and one-click reassembly:
+```bash
+python server.py
+```
+Open your browser at: **`http://localhost:8000`**
 
 ---
 
