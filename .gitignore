@@ -1,0 +1,33 @@
+# Environment Configuration & Secrets (CRITICAL: NEVER COMMIT)
+.env
+.env.local
+*.key
+secret.key
+
+# Staging & Temporary Directories
+temp_enc/
+temp_upload_enc/
+mock_cloud_storage/
+demo_files/
+demo_workspace/
+restored_*
+
+# Generated Large Test Dummy Files (can be regenerated with create_dummy_files.py)
+sample_notes.txt
+sample_image.png
+sample_document.pdf
+
+# Python Bytecode & Cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
